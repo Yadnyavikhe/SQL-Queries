@@ -1,0 +1,57 @@
+CREATE DATABASE CompanyDB;
+USE CompanyDB;
+
+CREATE TABLE Employees (
+    EmpID INT PRIMARY KEY,
+    EmpName VARCHAR(50),
+    DeptID INT,
+    Salary INT
+);
+
+CREATE TABLE Departments(
+    DeptID INT PRIMARY KEY,
+    DeptName VARCHAR(50),
+    Location VARCHAR(50)
+);
+
+INSERT INTO Employees (EmpID, EmpName, DeptID, Salary) VALUES
+(1, 'Yadnya', 101, 60000),
+(2, 'Rutuja',null, 75000),
+(3, 'Payal', 103, 50000),
+(4, 'Harshada',104, 40000),
+(5, 'Trupti', 105, 70000);
+
+INSERT INTO Departments (DeptID, DeptName, Location) VALUES
+(101, 'HR', 'Pune'),
+(102, 'Finance', 'Mumbai'),
+(103, 'IT', 'Delhi'),
+(104, 'Marketing', 'Hyderabad');
+
+USE CompanyDB;
+Select * from Employees;
+Select * from Departments ;
+
+##################--------------INNER JOIN--------------##############
+SELECT E.EmpID, E.EmpName,E.Salary ,D.DeptName, D.Location
+FROM Employees E
+INNER JOIN Departments D ON E.DeptID = D.DeptID;
+
+##################--------------LEFT JOIN--------------##############
+SELECT E.EmpName,D.DeptId, D.DeptName, D.Location
+FROM Employees E
+LEFT JOIN Departments D ON E.DeptID = D.DeptID;
+
+##################------------RIGHT JOIN--------------##############.
+SELECT E.EmpName,E.Empid, D.DeptName, D.Location
+FROM Employees E
+RIGHT JOIN Departments D ON E.DeptID = D.DeptID;
+
+
+##################--------------FULL OUTER JOIN--------------##############
+SELECT E.EmpName, E.Empid, D.Location
+FROM Employees E
+LEFT JOIN Departments D ON E.DeptID = D.DeptID
+UNION 
+SELECT E.EmpName, D.DeptName, D.Location
+FROM Employees E
+RIGHT JOIN Departments D ON E.DeptID = D.DeptID;
