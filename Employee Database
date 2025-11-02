@@ -1,0 +1,212 @@
+#Firstly create a database then work on it using SQL Queries
+
+CREATE DATABASE Empdb;
+USE EmpDB;
+
+CREATE TABLE Employee (
+EmpID INT PRIMARY KEY, 
+FirstName VARCHAR(30), 
+LastName VARCHAR(30), 
+Department VARCHAR(50),
+ Salary DECIMAL(10,2), 
+ JoiningDate DATE,
+ Age INT, 
+ Gender VARCHAR(10),
+Bonus DECIMAL(10,2)
+);
+
+INSERT INTO Employee VALUES
+(1,'John','Doe','IT',600000,'2020-01-15',30,'Male',50000),
+(2,'Yadnya','Vikhe','HR',900000,'2019-02-7',20,'Female',90000),
+(3,'Alice','Smith','IT',800000,'2023-09-5',30,'Male',40000),
+(4,'Rohini','Khajekar','Finance',700000,'2022-06-15',21,'Female',30000),
+(5,'Trupti','Mitkar','Marketing',500000,'2025-05-8',20,'Female',10000);
+
+
+select EmpID,Salary,Age,Gender from employee;
+
+select concat(FirstName,' ',LastName) as full_Name from employee;
+
+select EmpID as ID,firstName as Name from employee;
+
+select replace(FirstName,"John","JOHN")from employee;
+
+select replace(Salary,600000.00,78260) from employee;
+
+Select * from employee;
+
+select * from employee where FirstName="John";
+
+select * from employee where age>=28 and EmpID=3;
+
+select FirstName,Salary from employee where Salary>600000;
+
+select FirstName,Bonus from employee where Salary>600000;
+
+select FirstName,age from employee where not age=30;
+
+select * from employee where not age=30 and not bonus=6000;
+
+select * from employee;
+
+select FirstName,Bonus,age from employee where not age=30 and not bonus=6000;
+
+select * from employee WHERE age BETWEEN 20 and 30 and Bonus not IN(30000,50000);
+
+select * from employee where age In(20,30) or Bonus In(50000,90000);
+
+select FirstName,Bonus,age from employee where age not IN(20,30) and Bonus not IN(4000,100000);
+
+select * from employee where Gender="Female" or Department="Marketing" and salary=10000;
+
+select * from employee WHERE age BETWEEN 20 and 30;
+
+Select * from employee order by Salary asc limit 3;
+
+Select * from employee order by Salary desc limit 2;
+
+select FirstName,Salary from employee order by Salary desc limit 3;
+
+select FirstName,Salary from employee order by Salary asc limit 3;
+
+select * from employee order by FirstName desc;
+
+select * from employee order by FirstName asc;
+
+select * from employee where Gender="Male" order by FirstName asc;
+
+select * from employee where Department="IT" order by Salary asc;
+
+select * from employee where Gender="Male" order by Salary desc limit 1;
+
+select * from employee where Gender="Female" order by Salary asc limit 1;
+
+select FirstName,Salary from employee where Gender="Male" order by Salary asc limit 2;
+
+#######################Distinct use to remove duplicate#############################
+
+select * from employee;
+
+select distinct Department from employee;
+
+select count(DISTINCT Department) FROM employee; #Inplace count use (sum,min,max,avg)
+
+select Department,count(Department) from employee group by Department;
+
+#############--------------ADD COLUMN-----------------###############
+select * from employee;
+
+ALTER TABLE employee ADD MOB VARCHAR(13) DEFAULT '' ;
+
+UPDATE employee SET MOB='+917654789876' WHERE EmpID = 1;
+
+UPDATE employee SET MOB='+913654654876' WHERE EmpID = 2;
+
+UPDATE employee SET MOB='+916543289876' WHERE EmpID = 3;
+
+UPDATE employee SET MOB='+911234567895' WHERE EmpID = 4;
+
+UPDATE employee SET MOB='+919876543215' WHERE EmpID =5;
+alter table employee add reward decimal(10,2);
+
+alter table employee modify reward decimal(15,2);
+
+select * from employee;
+
+UPDATE employee SET reward = Salary * 12 WHERE EmpID>0;
+
+#############--------------ADD ROWS------------------#############
+
+SELECT * from employee;
+
+INSERT INTO employee(EmpID,FirstName,LastName,Department,Salary,JoiningDate,Age,Gender,Bonus,MOB)
+VALUES(7,'Rutuja','Khatal','DA',500000,'2024-07-04','25','Female','700000','+21879546498');
+
+
+##################-----------------DROP COLUMN---------------###########################
+USE empdb;
+alter table employee drop column MOB;
+UPDATE employee SET Bonus=NULL;
+
+#DELETE FROM EMPLOYEE:- DELETE ALL ROWS FROM TABLE
+#TRUNCATE TABLE EMPLOYEE:-REMOVE ALL ROWS VERY FAST
+#DROP TABLE EMPLOYEE:- DELETE THE ENTIRE TABLE STRUCTURE AND DATA
+
+############---------------Grouped Aggregation by Department-------------############
+
+select * from employee;
+
+select FirstName,Department,min(Salary) from employee where Department="IT" group by FirstName,Department;
+
+select FirstName,Department,max(Bonus) from employee group by FirstName,Department;
+
+select FirstName,Department from employee where Salary>60000;
+
+select *  from employee;
+
+select FirstName,Department from employee where Salary>50000 group by FirstName,Department;
+
+select FirstName,Department,avg(Salary) as SalaryCount from employee group by FirstName,Department;
+
+select Department,min(age) as Youngest,max(Salary) as Max_Salary from employee group by Department;
+
+select Department,count(Department) from employee group by Department;
+
+select FirstName,Department,empid,count(*) from employee where Salary>60000 group by FirstName,empid,Department;
+
+select * from employee;
+
+select Gender,count(*),avg(Salary) from employee group by Gender order by gender desc;
+
+select Gender,count(*),avg(Salary) from employee group by Gender;
+
+select FirstName,Salary from employee group by FirstName,Salary order by avg(Salary) desc limit 2;
+
+SELECT
+     Department,
+     COUNT(Salary) AS TotalEmployee,
+     SUM(Salary) AS DepartmentSalary,
+     AVG(Salary) AS AvgSalary,
+     MAX(Salary) AS HighestSalary,
+     min(Salary) AS MinSalary,
+     min(age) AS MinAge
+ FROM employee 
+    GROUP BY Department;
+
+###########################----------------HAVING CLAUSE------------------#########################
+
+USE empdb;
+
+select * from employee;
+
+select FirstName,max(Bonus) FROM employee GROUP BY FirstName,Bonus HAVING max(Bonus)>5000;
+
+SELECT Department,AVG(Salary) AS AvgSalary FROM employee GROUP BY Department HAVING AVG(Salary)>60000;
+
+#####################---------------ROLLBack AND ROLLBACK-----------###################
+
+select  * from employee;
+
+commit; 
+UPDATE employee
+SET Salary=50000
+where EmpID =1;
+rollback;
+SELECT * From employee;
+
+##################-----------------VIEWS---------------#################
+
+SELECT FirstName,Salary FROM employee;
+
+CREATE VIEW sf AS SELECT FirstName,Salary FROM employee;
+
+SELECT * FROM sf;
+
+######################--------------MODE--------------###############
+
+SELECT Salary AS Mode_Salary
+FROM employee
+GROUP BY Salary
+ORDER BY COUNT(*) DESC
+LIMIT 2;
+
