@@ -1,0 +1,236 @@
+CREATE DATABASE zepto_project;
+USE zepto_project;
+
+-- Customers Table
+CREATE TABLE customers (
+    CustomerID INT PRIMARY KEY AUTO_INCREMENT,
+    Name VARCHAR(100),
+    Phone VARCHAR(15),
+    Email VARCHAR(100),
+    City VARCHAR(50),
+    Address VARCHAR(255)
+);
+
+-- Products Table
+CREATE TABLE products (
+    ProductID INT PRIMARY KEY AUTO_INCREMENT,
+    ProductName VARCHAR(100),
+    Category VARCHAR(50),
+    Price DECIMAL(10,2),
+    Stock INT
+);
+
+-- Orders Table
+CREATE TABLE orders (
+    OrderID INT PRIMARY KEY AUTO_INCREMENT,
+    CustomerID INT,
+    OrderDate DATETIME,
+    TotalAmount DECIMAL(10,2),
+    Status VARCHAR(50),
+    FOREIGN KEY (CustomerID) REFERENCES customers(CustomerID)
+);
+
+-- Order Details Table
+CREATE TABLE order_details (
+    OrderDetailID INT PRIMARY KEY AUTO_INCREMENT,
+    OrderID INT,
+    ProductID INT,
+    Quantity INT,
+    Subtotal DECIMAL(10,2),
+    FOREIGN KEY (OrderID) REFERENCES orders(OrderID),
+    FOREIGN KEY (ProductID) REFERENCES products(ProductID)
+);
+
+-- Delivery Table
+CREATE TABLE delivery (
+    DeliveryID INT PRIMARY KEY AUTO_INCREMENT,
+    OrderID INT,
+    RiderName VARCHAR(100),
+    DeliveryTime INT,   -- time in minutes
+    Status VARCHAR(50),
+    FOREIGN KEY (OrderID) REFERENCES orders(OrderID)
+);
+
+-- Step 3: Insert Data
+
+-- Customers
+INSERT INTO customers (Name, Phone, Email, City, Address)
+VALUES 
+('Riya Sharma', '9876543210', 'riya@gmail.com', 'Mumbai', 'Andheri East'),
+('Aman Patel', '9988776655', 'aman@gmail.com', 'Pune', 'Kothrud'),
+('Sneha Rao', '9090909090', 'sneha@gmail.com', 'Delhi', 'Dwarka');
+
+-- Products
+INSERT INTO products (ProductName, Category, Price, Stock)
+VALUES
+('Milk 1L', 'Dairy', 60, 100),
+('Bread', 'Bakery', 40, 200),
+('Apples 1kg', 'Fruits', 120, 80),
+('Rice 5kg', 'Groceries', 450, 50);
+
+-- Orders (make sure CustomerID exists before inserting)
+INSERT INTO orders (CustomerID, OrderDate, TotalAmount, Status)
+VALUES
+(1, NOW(), 220, 'Delivered'),
+(2, NOW(), 90, 'Delivered'),
+(3, NOW(), 60, 'Pending');
+
+-- Order Details (OrderID & ProductID must exist)
+INSERT INTO order_details (OrderID, ProductID, Quantity, Subtotal)
+VALUES
+(1, 1, 2, 120),
+(1, 2, 1, 40),
+(1, 3, 1, 120),
+(2, 2, 2, 80),
+(3, 1, 1, 60);
+
+-- Delivery (OrderID must exist in orders table)
+INSERT INTO delivery (OrderID, RiderName, DeliveryTime, Status)
+VALUES
+(1, 'Ravi Singh', 9, 'Delivered'),
+(2, 'Karan Mehta', 12, 'Delivered'),
+(3, 'Rohit Das', NULL, 'Pending');
+
+-- Example Queries
+
+-- Total Orders
+SELECT COUNT(*) AS TotalOrders FROM orders;
+
+-- Total Revenue
+SELECT SUM(TotalAmount) AS TotalRevenue FROM orders;
+
+-- Top Selling Products
+SELECT p.ProductName, SUM(od.Quantity) AS TotalSold
+FROM order_details od
+JOIN products p ON od.ProductID = p.ProductID
+GROUP BY p.ProductName
+ORDER BY TotalSold DESC;
+
+-- Average Delivery Time
+SELECT AVG(DeliveryTime) AS AvgDeliveryTime FROM delivery WHERE Status = 'Delivered';
+
+-- Orders by City
+SELECT c.City, COUNT(o.OrderID) AS TotalOrders
+FROM orders o
+JOIN customers c ON o.CustomerID = c.CustomerID
+GROUP BY c.City;
+
+
+-- View all customers
+SELECT * FROM customers;
+
+-- View customer names and cities
+SELECT Name, City FROM customers;
+
+-- Count total number of customers
+SELECT COUNT(*) AS TotalCustomers FROM customers;
+
+-- Find customers in a specific city (e.g., Mumbai)
+SELECT * FROM customers
+WHERE City = 'Mumbai';
+
+-- Search customers by name pattern (names starting with ‘R’)
+SELECT * FROM customers
+WHERE Name LIKE 'R%';
+
+-- Count customers in each city
+SELECT City, COUNT(*) AS NumCustomers
+FROM customers
+GROUP BY City;
+
+-- Sort customers alphabetically by name
+SELECT * FROM customers
+ORDER BY Name ASC;
+
+-- Find customers with email containing “gmail.com”
+SELECT * FROM customers
+WHERE Email LIKE '%gmail.com%';
+
+-- View all products
+SELECT * FROM products;
+
+-- View product names and prices
+SELECT ProductName, Price FROM products;
+
+-- Find products in a specific category (e.g., Fruits)
+SELECT * FROM products
+WHERE Category = 'Fruits';
+
+-- Find products with stock less than 50
+SELECT * FROM products
+WHERE Stock < 50;
+
+-- View all order details
+SELECT * FROM order_details;
+
+-- View order details with product names
+SELECT od.OrderDetailID, od.OrderID, p.ProductName, od.Quantity, od.Subtotal
+FROM order_details od
+JOIN products p ON od.ProductID = p.ProductID;
+
+-- Find all items for a specific order (e.g., OrderID = 1)
+SELECT * FROM order_details
+WHERE OrderID = 1;
+
+-- Total quantity sold per product
+SELECT ProductID, SUM(Quantity) AS TotalQuantity
+FROM order_details
+GROUP BY ProductID;
+
+-- Update quantity or subtotal for a specific order detail
+UPDATE order_details
+SET Quantity = 3, Subtotal = 180
+WHERE OrderDetailID = 1;
+
+-- View all orders
+SELECT * FROM orders;
+
+-- View orders with customer names
+SELECT o.OrderID, c.Name AS CustomerName, o.TotalAmount, o.Status
+FROM orders o
+JOIN customers c ON o.CustomerID = c.CustomerID;
+
+-- Find orders with TotalAmount greater than 200
+SELECT * FROM orders
+WHERE TotalAmount > 200;
+
+-- Find pending orders
+SELECT * FROM orders
+WHERE Status = 'Pending';
+
+-- Count total orders per customer
+SELECT CustomerID, COUNT(*) AS TotalOrders
+FROM orders
+GROUP BY CustomerID;
+
+-- Update order status (e.g., mark OrderID 3 as Delivered)
+UPDATE orders
+SET Status = 'Delivered'
+WHERE OrderID = 3;
+
+-- View all deliveries
+SELECT * FROM delivery;
+
+-- View deliveries with customer names and order amount
+SELECT d.DeliveryID, d.RiderName, d.DeliveryTime, d.Status, c.Name AS CustomerName, o.TotalAmount
+FROM delivery d
+JOIN orders o ON d.OrderID = o.OrderID
+JOIN customers c ON o.CustomerID = c.CustomerID;
+
+-- Find deliveries with DeliveryTime greater than 10 minutes
+SELECT * FROM delivery
+WHERE DeliveryTime > 10;
+
+-- Average delivery time for completed deliveries
+SELECT AVG(DeliveryTime) AS AvgDeliveryTime
+FROM delivery
+WHERE Status = 'Delivered';
+
+-- Update delivery status (e.g., mark DeliveryID 3 as Delivered)
+UPDATE delivery
+SET Status = 'Delivered', DeliveryTime = 12
+WHERE DeliveryID = 3;
+
+
+
+ 
